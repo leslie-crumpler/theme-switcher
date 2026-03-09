@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Theme Switcher</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0d0d0d;
+      --surface: #1a1a1a;
+      --border: #2e2e2e;
+      --text: #f0f0f0;
+      --sub: #888;
+      --accent: #c8ff00;
+      --accent2: #ff4d6d;
+      --card-bg: #161616;
+    }
+    :root[data-theme="light"] {
+      --bg: #f5f0e8;
+      --surface: #fffdf7;
+      --border: #d8d0c0;
+      --text: #1a1a1a;
+      --sub: #888;
+      --accent: #1a1a1a;
+      --accent2: #ff4d6d;
+      --card-bg: #fff;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      padding: 2rem;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+    header {
+      text-align: center;
+    }
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    h1 span { color: var(--accent); transition: color 0.5s; }
+    p.sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--sub);
+      margin-top: 0.5rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* TOGGLE */
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .toggle-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--sub);
+    }
+    .toggle {
+      position: relative;
+      width: 64px;
+      height: 32px;
+      cursor: pointer;
+    }
+    .toggle input { display: none; }
+    .track {
+      width: 100%;
+      height: 100%;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 999px;
+      transition: background 0.4s, border-color 0.4s;
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+    }
+    .thumb {
+      width: 22px;
+      height: 22px;
+      background: var(--accent);
+      border-radius: 50%;
+      transition: transform 0.4s cubic-bezier(.34,1.56,.64,1), background 0.4s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+    input:checked ~ .track .thumb {
+      transform: translateX(32px);
+    }
+
+    /* PREVIEW CARDS */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      width: 100%;
+      max-width: 680px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: background 0.5s, border-color 0.5s, transform 0.2s;
+    }
+    .card:hover { transform: translateY(-3px); }
+    .card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+    .card p {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--sub);
+      line-height: 1.5;
+    }
+    .tag {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      background: var(--accent);
+      color: var(--bg);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    /* COLOR PALETTE */
+    .palette {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .swatch {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+      position: relative;
+    }
+    .swatch:hover { transform: scale(1.15); }
+    .swatch.active { border-color: var(--text); }
+    .swatch-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--sub);
+    }
+
+    footer {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--sub);
+      letter-spacing: 0.1em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Theme<br/><span id="mode-label">Switcher</span></h1>
+    <p class="sub">Interactive UI · JavaScript DOM</p>
+  </header>
+
+  <div class="toggle-wrap">
+    <span class="toggle-label">Dark</span>
+    <label class="toggle">
+      <input type="checkbox" id="themeToggle"/>
+      <div class="track">
+        <div class="thumb" id="thumb">🌙</div>
+      </div>
+    </label>
+    <span class="toggle-label">Light</span>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🎨</div>
+      <h3>CSS Variables</h3>
+      <p>Theme tokens update globally via <code>data-theme</code> attribute on root.</p>
+      <span class="tag">DOM</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h3>Smooth Transitions</h3>
+      <p>All color changes animate with CSS transitions for fluid UX.</p>
+      <span class="tag">CSS</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">💾</div>
+      <h3>Persisted Preference</h3>
+      <p>User choice saved in localStorage. Remembered on next visit.</p>
+      <span class="tag">Storage</span>
+    </div>
+  </div>
+
+  <div>
+    <p class="sub" style="text-align:center;margin-bottom:0.75rem;">Accent Color</p>
+    <div class="palette" id="palette">
+      <div class="swatch active" data-color="#c8ff00" style="background:#c8ff00"></div>
+      <div class="swatch" data-color="#ff4d6d" style="background:#ff4d6d"></div>
+      <div class="swatch" data-color="#00d2ff" style="background:#00d2ff"></div>
+      <div class="swatch" data-color="#ff9500" style="background:#ff9500"></div>
+      <div class="swatch" data-color="#a78bfa" style="background:#a78bfa"></div>
+    </div>
+  </div>
+
+  <footer>localStorage · CSS Custom Properties · Event Listeners</footer>
+
+  <script>
+    const toggle = document.getElementById('themeToggle');
+    const thumb = document.getElementById('thumb');
+    const html = document.documentElement;
+    const modeLabel = document.getElementById('mode-label');
+
+    // Load saved theme
+    const saved = localStorage.getItem('theme') || 'dark';
+    applyTheme(saved);
+
+    toggle.addEventListener('change', () => {
+      const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      localStorage.setItem('theme', next);
+    });
+
+    function applyTheme(theme) {
+      html.dataset.theme = theme;
+      toggle.checked = theme === 'light';
+      thumb.textContent = theme === 'dark' ? '🌙' : '☀️';
+      modeLabel.textContent = theme === 'dark' ? 'Dark Mode' : 'Light Mode';
+    }
+
+    // Accent color picker
+    document.getElementById('palette').addEventListener('click', e => {
+      const swatch = e.target.closest('.swatch');
+      if (!swatch) return;
+      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+      swatch.classList.add('active');
+      html.style.setProperty('--accent', swatch.dataset.color);
+      // Contrast check: if light color, use dark text on tag
+      const light = ['#c8ff00', '#00d2ff', '#ff9500'];
+      const tagColor = light.includes(swatch.dataset.color) ? '#0d0d0d' : '#fff';
+      html.style.setProperty('--bg-for-tag', tagColor);
+    });
+  </script>
+</body>
+</html>
